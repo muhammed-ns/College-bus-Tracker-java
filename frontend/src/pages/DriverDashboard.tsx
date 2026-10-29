@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import api from '../services/api';
 import { Bus, Route, Trip, LocationUpdateRequest } from '../types';
 import StatusBadge from '../components/StatusBadge';
+import { PRECOMPUTED_ROAD_PATH, fetchRoadRouteGeometry } from '../utils/roadRouting';
 import {
   Play,
   Square,
@@ -170,44 +171,39 @@ export const DriverDashboard: React.FC = () => {
     }, 5000);
   };
 
-  // Start Simulated Route Sharing (steps through stops or generates realistic progression)
-  const startSimulatedSharing = () => {
-    if (!route || !route.stops || route.stops.length === 0) {
-      setErrorMessage('Route stops not loaded for simulation');
-      return;
-    }
-
+  // Start Simulated Route Sharing (drives smoothly along real road coordinates)
+  const startSimulatedSharing = async () => {
     setIsSharingLocation(true);
     setIsSimulating(true);
     setErrorMessage(null);
 
-    const stops = [...route.stops].sort((a, b) => a.stopOrder - b.stopOrder);
-    let step = simStepRef.current % stops.length;
+    const stops = route?.stops?.length ? [...route.stops].sort((a, b) => a.stopOrder - b.stopOrder) : [];
+    const roadCoords = stops.length > 1 ? await fetchRoadRouteGeometry(stops) : PRECOMPUTED_ROAD_PATH;
+    const path = roadCoords.length > 1 ? roadCoords : PRECOMPUTED_ROAD_PATH;
 
-    // Send first simulated stop coordinate
-    const targetStop = stops[step];
+    let idx = simStepRef.current % path.length;
+
+    // Send initial road point coordinate immediately
+    const initialPoint = path[idx];
     sendLocationUpdate({
-      latitude: targetStop.latitude,
-      longitude: targetStop.longitude,
-      speed: 32.5,
+      latitude: initialPoint[0],
+      longitude: initialPoint[1],
+      speed: 36.0,
     });
 
-    // Every 5 seconds advance smoothly through the route
+    // Advance smoothly along the actual highway road points every 2.5 seconds
     locationIntervalRef.current = window.setInterval(() => {
-      step = (step + 1) % stops.length;
-      simStepRef.current = step;
-      const currentStop = stops[step];
-      // Add slight jitter so it shows continuous real-time motion
-      const jitterLat = currentStop.latitude + (Math.random() - 0.5) * 0.0008;
-      const jitterLng = currentStop.longitude + (Math.random() - 0.5) * 0.0008;
-      const simSpeed = 25.0 + Math.random() * 15.0;
+      idx = (idx + 6) % path.length;
+      simStepRef.current = idx;
+      const point = path[idx];
+      const simSpeed = 32.0 + Math.random() * 14.0;
 
       sendLocationUpdate({
-        latitude: jitterLat,
-        longitude: jitterLng,
+        latitude: point[0],
+        longitude: point[1],
         speed: simSpeed,
       });
-    }, 5000);
+    }, 2500);
   };
 
   // Stop Location Sharing

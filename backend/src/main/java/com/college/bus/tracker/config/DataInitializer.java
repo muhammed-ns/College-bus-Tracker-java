@@ -92,8 +92,8 @@ public class DataInitializer implements CommandLineRunner {
     private Route seedRouteAndStops() {
         Route route = routeRepository.findFirstByOrderByIdAsc().orElseGet(() -> {
             Route newRoute = new Route();
-            newRoute.setRouteName("CEA Campus & Adoor Town Route");
-            newRoute.setDescription("Daily student transit route starting from College of Engineering Adoor, traveling via Manakala, Adoor Central, Parakode, Ezhamkulam, and ending at College of Engineering Adoor");
+            newRoute.setRouteName("CEA Adoor – Adoor – Enathu – Kottarakkara (MC Road)");
+            newRoute.setDescription("Daily college transit route along MC Road starting from College of Engineering Adoor, via Manakala, Adoor KSRTC, Enathu, Kulakkada, Kottarakkara, and returning to CEA Adoor");
             newRoute.setActive(true);
             Route savedRoute = routeRepository.save(newRoute);
             logger.info("Seeded Route: {}", savedRoute.getRouteName());
@@ -105,15 +105,17 @@ public class DataInitializer implements CommandLineRunner {
             List<Stop> stops = Arrays.asList(
                     new Stop(null, route, "College of Engineering Adoor (Departure Gate)", 9.1324, 76.7182, 1),
                     new Stop(null, route, "Manakala Junction", 9.1352, 76.7225, 2),
-                    new Stop(null, route, "Karuvatta Junction", 9.1440, 76.7310, 3),
+                    new Stop(null, route, "Adoor High School Junction (MC Road)", 9.1508, 76.7318, 3),
                     new Stop(null, route, "Adoor KSRTC Central Bus Stand", 9.1538, 76.7335, 4),
-                    new Stop(null, route, "Adoor Revenue Tower / Private Stand", 9.1560, 76.7360, 5),
-                    new Stop(null, route, "Parakode Junction Market", 9.1425, 76.7512, 6),
-                    new Stop(null, route, "Ezhamkulam Temple Junction", 9.1305, 76.7580, 7),
-                    new Stop(null, route, "College of Engineering Adoor (Arrival Terminal)", 9.1324, 76.7182, 8)
+                    new Stop(null, route, "Adoor Bypass / Nellimoodu (MC Road)", 9.1385, 76.7422, 5),
+                    new Stop(null, route, "Enathu Junction (MC Road)", 9.0931, 76.7628, 6),
+                    new Stop(null, route, "Kulakkada Junction (MC Road)", 9.0512, 76.7745, 7),
+                    new Stop(null, route, "Mylom Junction (MC Road)", 9.0195, 76.7790, 8),
+                    new Stop(null, route, "Kottarakkara Pulamon Junction (KSRTC)", 8.9992, 76.7831, 9),
+                    new Stop(null, route, "College of Engineering Adoor (Arrival Terminal)", 9.1324, 76.7182, 10)
             );
             stopRepository.saveAll(stops);
-            logger.info("Seeded 8 stops starting and ending at College of Engineering Adoor");
+            logger.info("Seeded 10 stops along CEA Adoor - Adoor - Enathu - Kottarakkara route");
         }
 
         return route;

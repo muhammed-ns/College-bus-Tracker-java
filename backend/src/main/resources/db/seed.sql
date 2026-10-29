@@ -15,19 +15,21 @@ INSERT INTO bus (id, bus_number, registration_number, status, created_at, update
 (1, 'CEA College Bus 1', 'KL-26-CEA-101', 'ACTIVE', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON DUPLICATE KEY UPDATE bus_number=VALUES(bus_number);
 
--- Default Route (CEA Campus - Adoor Transit Loop)
+-- Default Route (CEA Campus - Adoor - Kottarakkara Transit Corridor)
 INSERT INTO route (id, route_name, description, active, created_at) VALUES
-(1, 'CEA Campus & Adoor Town Route', 'Daily student transit route starting from College of Engineering Adoor, traveling via Manakala, Adoor Central, Parakode, Ezhamkulam, and ending at College of Engineering Adoor', true, CURRENT_TIMESTAMP)
+(1, 'CEA Adoor – Adoor – Enathu – Kottarakkara (MC Road)', 'Daily college transit route along MC Road starting from College of Engineering Adoor, via Manakala, Adoor KSRTC, Enathu, Kulakkada, Kottarakkara, and returning to CEA Adoor', true, CURRENT_TIMESTAMP)
 ON DUPLICATE KEY UPDATE route_name=VALUES(route_name);
 
--- Stops starting and ending at College of Engineering Adoor
+-- Stops starting and ending at College of Engineering Adoor via Adoor & Kottarakkara
 INSERT INTO stop (id, route_id, stop_name, latitude, longitude, stop_order, created_at) VALUES
 (1, 1, 'College of Engineering Adoor (Departure Gate)', 9.1324, 76.7182, 1, CURRENT_TIMESTAMP),
 (2, 1, 'Manakala Junction', 9.1352, 76.7225, 2, CURRENT_TIMESTAMP),
-(3, 1, 'Karuvatta Junction', 9.1440, 76.7310, 3, CURRENT_TIMESTAMP),
+(3, 1, 'Adoor High School Junction (MC Road)', 9.1508, 76.7318, 3, CURRENT_TIMESTAMP),
 (4, 1, 'Adoor KSRTC Central Bus Stand', 9.1538, 76.7335, 4, CURRENT_TIMESTAMP),
-(5, 1, 'Adoor Revenue Tower / Private Stand', 9.1560, 76.7360, 5, CURRENT_TIMESTAMP),
-(6, 1, 'Parakode Junction Market', 9.1425, 76.7512, 6, CURRENT_TIMESTAMP),
-(7, 1, 'Ezhamkulam Temple Junction', 9.1305, 76.7580, 7, CURRENT_TIMESTAMP),
-(8, 1, 'College of Engineering Adoor (Arrival Terminal)', 9.1324, 76.7182, 8, CURRENT_TIMESTAMP)
+(5, 1, 'Adoor Bypass / Nellimoodu (MC Road)', 9.1385, 76.7422, 5, CURRENT_TIMESTAMP),
+(6, 1, 'Enathu Junction (MC Road)', 9.0931, 76.7628, 6, CURRENT_TIMESTAMP),
+(7, 1, 'Kulakkada Junction (MC Road)', 9.0512, 76.7745, 7, CURRENT_TIMESTAMP),
+(8, 1, 'Mylom Junction (MC Road)', 9.0195, 76.7790, 8, CURRENT_TIMESTAMP),
+(9, 1, 'Kottarakkara Pulamon Junction (KSRTC)', 8.9992, 76.7831, 9, CURRENT_TIMESTAMP),
+(10, 1, 'College of Engineering Adoor (Arrival Terminal)', 9.1324, 76.7182, 10, CURRENT_TIMESTAMP)
 ON DUPLICATE KEY UPDATE stop_name=VALUES(stop_name);
