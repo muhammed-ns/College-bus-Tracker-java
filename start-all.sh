@@ -11,10 +11,17 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "=========================================================="
 echo " Starting Full-Stack College Bus Tracker"
-echo " Route: College of Engineering Adoor (CEA)"
+echo " Route: CEA Adoor – Adoor – Enathu – Kottarakkara (MC Road)"
 echo " Backend:  http://localhost:8080"
 echo " Frontend: http://localhost:5173"
 echo "=========================================================="
+
+# Free port 8080 if an old backend instance is already running
+if fuser 8080/tcp >/dev/null 2>&1; then
+    echo "-> Stopping previous backend instance on port 8080..."
+    fuser -k 8080/tcp >/dev/null 2>&1 || true
+    sleep 1
+fi
 
 # Trap SIGINT and SIGTERM to kill all spawned child processes
 cleanup() {
@@ -29,7 +36,7 @@ trap cleanup SIGINT SIGTERM EXIT
 # Start Backend in background
 echo "-> Starting Backend (Spring Boot 3 + H2)..."
 cd "$ROOT_DIR/backend"
-(mvn spring-boot:run -Dspring-boot.run.profiles=h2 -o || mvn spring-boot:run -Dspring-boot.run.profiles=h2) &
+mvn spring-boot:run -Dspring-boot.run.profiles=h2 -o &
 BACKEND_PID=$!
 
 # Wait for backend port 8080 to become available
