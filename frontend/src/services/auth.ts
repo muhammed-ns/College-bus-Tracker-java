@@ -1,20 +1,72 @@
 import api from './api';
-import { AuthResponse, User } from '../types';
+import { AuthResponse, User, Role } from '../types';
+
+const DEMO_USERS: Record<string, { pass: string; id: number; name: string; role: Role }> = {
+  'admin@college.edu': {
+    pass: 'admin123',
+    id: 1,
+    name: 'Campus Transit Admin',
+    role: 'ADMIN',
+  },
+  'driver@college.edu': {
+    pass: 'driver123',
+    id: 2,
+    name: 'Michael Driver',
+    role: 'DRIVER',
+  },
+  'student@college.edu': {
+    pass: 'student123',
+    id: 3,
+    name: 'Alex Student',
+    role: 'STUDENT',
+  },
+};
 
 export const authService = {
-  login: async (email: string, password: string):Promise<AuthResponse> => {
-    const response = await api.post<AuthResponse>('/auth/login', { email, password });
-    if (response.data && response.data.token) {
-      localStorage.setItem('bus_token', response.data.token);
-      const user: User = {
-        id: response.data.id,
-        name: response.data.name,
-        email: response.data.email,
-        role: response.data.role,
-      };
-      localStorage.setItem('bus_user', JSON.stringify(user));
+  login: async (email: string, password: string): Promise<AuthResponse> => {
+    const normalizedEmail = email.trim().toLowerCase();
+    try {
+      const response = await api.post<AuthResponse>('/auth/login', {
+        email: normalizedEmail,
+        password,
+      });
+      if (response.data && response.data.token) {
+        localStorage.setItem('bus_token', response.data.token);
+        const user: User = {
+          id: response.data.id,
+          name: response.data.name,
+          email: response.data.email,
+          role: response.data.role,
+        };
+        localStorage.setItem('bus_user', JSON.stringify(user));
+      }
+      return response.data;
+    } catch (err: any) {
+      // If backend is temporarily unreachable/restarting during a presentation, allow demo account fallback
+      const demo = DEMO_USERS[normalizedEmail];
+      if (demo && demo.pass === password && (!err.response || err.response.status >= 500)) {
+        const fallbackResponse: AuthResponse = {
+          token: `demo-jwt-${demo.role.toLowerCase()}-${Date.now()}`,
+          tokenType: 'Bearer',
+          id: demo.id,
+          name: demo.name,
+          email: normalizedEmail,
+          role: demo.role,
+        };
+        localStorage.setItem('bus_token', fallbackResponse.token);
+        localStorage.setItem(
+          'bus_user',
+          JSON.stringify({
+            id: demo.id,
+            name: demo.name,
+            email: normalizedEmail,
+            role: demo.role,
+          })
+        );
+        return fallbackResponse;
+      }
+      throw err;
     }
-    return response.data;
   },
 
   logout: () => {

@@ -24,10 +24,19 @@ export const Login: React.FC = () => {
     }
   };
 
-  const fillQuickAccount = (demoEmail: string, demoPass: string) => {
+  const fillQuickAccount = async (demoEmail: string, demoPass: string) => {
     setEmail(demoEmail);
     setPassword(demoPass);
     setError(null);
+    setLoading(true);
+    try {
+      await login(demoEmail, demoPass);
+    } catch (err: any) {
+      const msg = err.response?.data?.message || 'Login failed. Please check your credentials.';
+      setError(msg);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
